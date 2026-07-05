@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+node_modules/
+output_*.srt
+*.log
+backend/.env
+backend/.venv/
