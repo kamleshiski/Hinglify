@@ -41,7 +41,7 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({"status": "ok"}), 200
+    return 'ok', 200
 
 @app.route("/api/convert", methods=["POST"])
 def convert_file():
