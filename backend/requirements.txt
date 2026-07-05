@@ -8,3 +8,4 @@ python-multipart
 google-genai
 openai
 httpx
+Flask-Limiter

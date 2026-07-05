@@ -40,6 +40,12 @@ const errorInline = document.getElementById('errorInline');
 const errorText = document.getElementById('errorText');
 const errorClose = document.getElementById('errorClose');
 
+const donationModal = document.getElementById('donationModal');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const donationBtnResult = document.getElementById('donationBtnResult');
+const donationBtnProminent = document.getElementById('donationBtnProminent');
+const fileSizeWarning = document.getElementById('fileSizeWarning');
+
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -172,6 +178,29 @@ function handleFile(file) {
   // Reset any previous results
   resetResults();
   updateConvertButton();
+
+  // Read file to count estimated lines (--> occurrences)
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const estimatedLines = (text.match(/-->/g) || []).length;
+    
+    if (fileSizeWarning) {
+      if (estimatedLines > 600) {
+        fileSizeWarning.textContent = "This is a large file. Conversion may take 2 to 3 minutes. Please keep this tab open until it finishes.";
+        fileSizeWarning.style.display = 'block';
+        setTimeout(() => fileSizeWarning.classList.add('visible'), 10);
+      } else if (estimatedLines >= 300) {
+        fileSizeWarning.textContent = "This is a fairly long file. Conversion may take around 60 to 90 seconds. Please keep this tab open.";
+        fileSizeWarning.style.display = 'block';
+        setTimeout(() => fileSizeWarning.classList.add('visible'), 10);
+      } else {
+        fileSizeWarning.classList.remove('visible');
+        setTimeout(() => fileSizeWarning.style.display = 'none', 200);
+      }
+    }
+  };
+  reader.readAsText(file);
 }
 
 function clearFile() {
@@ -182,6 +211,11 @@ function clearFile() {
   fileCard.style.display = 'none';
   uploadZone.classList.remove('has-file');
   uploadZone.classList.remove('error');
+
+  if (fileSizeWarning) {
+    fileSizeWarning.classList.remove('visible');
+    setTimeout(() => fileSizeWarning.style.display = 'none', 200);
+  }
 
   hideUploadError();
   resetResults();
@@ -205,6 +239,39 @@ function setupEventListeners() {
   errorClose.addEventListener('click', () => {
     hideError();
   });
+  
+  // Donation Modal Logic
+  const openModal = () => {
+    if (donationModal) {
+      donationModal.style.display = 'flex';
+      // Trigger reflow to ensure transition works
+      donationModal.offsetHeight;
+      donationModal.classList.add('visible');
+    }
+  };
+
+  const closeModal = () => {
+    if (donationModal) {
+      donationModal.classList.remove('visible');
+      setTimeout(() => donationModal.style.display = 'none', 200);
+    }
+  };
+
+  if (donationBtnResult) donationBtnResult.addEventListener('click', openModal);
+  if (donationBtnProminent) donationBtnProminent.addEventListener('click', openModal);
+  
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', closeModal);
+  }
+
+  if (donationModal) {
+    donationModal.addEventListener('click', (e) => {
+      // Close only if clicking the overlay (not the card)
+      if (e.target === donationModal) {
+        closeModal();
+      }
+    });
+  }
   
   // Smooth scroll links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -269,12 +336,19 @@ async function startConversion() {
       let errorMessage = 'Conversion failed. Please try again — if this keeps happening, the server may be waking up. Wait 30 seconds and retry.';
       try {
         const errorData = await response.json();
+        if (response.status === 429 || errorData.error === 'rate_limited') {
+          throw new Error('RATE_LIMITED');
+        }
         if (errorData.detail) {
           errorMessage = errorData.detail;
         } else if (errorData.error) {
           errorMessage = errorData.error;
         }
-      } catch (_) {}
+      } catch (err) {
+        if (err.message === 'RATE_LIMITED' || response.status === 429) {
+          throw new Error('RATE_LIMITED');
+        }
+      }
       throw new Error(errorMessage);
     }
 
@@ -314,7 +388,11 @@ async function startConversion() {
 
   } catch (err) {
     progressSection.style.display = 'none';
-    showError(err.message);
+    if (err.message === 'RATE_LIMITED') {
+      showRateLimitMessage();
+    } else {
+      showError(err.message);
+    }
     // Smooth scroll back to inline error
     errorInline.scrollIntoView({ behavior: 'smooth' });
   } finally {
@@ -422,7 +500,30 @@ function resetPage() {
 
 // ─── Error Handling ──────────────────────────────────────────────────────────
 
+function showRateLimitMessage() {
+  const mailtoLink = `mailto:workwithtrivox@gmail.com?subject=Hinglify%20Feedback%3A%20Server%20Busy&body=Hi%20Hinglify%20team%2C%0A%0AI%20tried%20converting%20a%20file%20but%20the%20servers%20seemed%20busy.%20Thought%20you%20should%20know.%0A%0AThanks`;
+
+  errorText.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; color: var(--text-secondary); font-size: 14px; line-height: 1.7;">
+      <div>
+        Our servers are a little busy right now.<br>
+        This usually clears up in a few minutes.<br>
+        Please wait and try again shortly.<br>
+        If this keeps happening, we would love to hear from you.
+      </div>
+      <button class="rate-limit-feedback-btn" onclick="window.location.href='${mailtoLink}'">Submit Feedback</button>
+    </div>
+  `;
+  
+  const icon = errorInline.querySelector('svg');
+  if (icon) icon.style.display = 'none';
+  
+  errorInline.classList.add('active');
+}
+
 function showError(message) {
+  const icon = errorInline.querySelector('svg');
+  if (icon) icon.style.display = '';
   errorText.textContent = message;
   errorInline.classList.add('active');
 }

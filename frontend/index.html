@@ -48,7 +48,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -211,6 +211,9 @@ Woh hamesha aisa hi karta hai.</pre>
         </div>
       </div>
 
+      <!-- File Size Warning Banner -->
+      <div id="fileSizeWarning" class="file-size-warning" style="display: none;"></div>
+
       <!-- Convert Button -->
       <button class="convert-btn" id="convertBtn" disabled>
         <span class="convert-btn__label" id="convertLabel">Convert your subtitles →</span>
@@ -262,9 +265,31 @@ Woh hamesha aisa hi karta hai.</pre>
           <span>Download Hinglish SRT</span>
         </button>
 
+        <!-- Donation Section -->
+        <div class="donation-section">
+          <p class="donation-message">Hinglify is free and will stay that way.<br>If it made your work a little easier today,<br>a small contribution means a lot to us.</p>
+          <button class="donation-btn" id="donationBtnResult">Support Hinglify</button>
+        </div>
+
         <!-- Reset Link -->
         <button class="reset-link" id="resetLink">Convert another file</button>
       </section>
+    </div>
+  </section>
+
+  <!-- Section C: Support the Project -->
+  <section class="support-section" id="supportSection">
+    <div class="support-container">
+      <div class="support-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </div>
+      <h2 class="support-heading">Keep Hinglify Free & Ad-Free</h2>
+      <p class="support-text">
+        Hinglify is built by independent developers to help Indian creators save time. We don't run ads, require signups, or sell your data. If this tool has saved you hours of manual subtitle work, a small contribution goes a long way in covering our server costs.
+      </p>
+      <button class="support-cta-btn" id="donationBtnProminent">Support the Project</button>
     </div>
   </section>
 
@@ -272,10 +297,22 @@ Woh hamesha aisa hi karta hai.</pre>
   <footer class="footer">
     <div class="footer-container">
       <span class="footer-brand">Hinglify</span>
-      <span class="footer-copy">© 2025</span>
+      <span class="footer-copy">© 2026</span>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2" defer></script>
+
+  <!-- Donation Modal -->
+  <div class="modal-overlay" id="donationModal" style="display: none;">
+    <div class="modal-card">
+      <h3 class="modal-heading">Support Hinglify</h3>
+      <p class="modal-subtext">Scan with any UPI app to contribute</p>
+      <!-- Replace /qr-code.png with actual UPI QR code image -->
+      <img src="/qr-code.png" alt="UPI QR Code" class="modal-qr">
+      <p class="modal-upi">UPI: kamlesh42119@oksbi</p>
+      <button class="modal-close" id="modalCloseBtn">Close</button>
+    </div>
+  </div>
 </body>
 </html>

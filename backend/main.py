@@ -11,8 +11,12 @@ import asyncio
 from pathlib import Path
 
 from dotenv import load_dotenv
+# pyrefly: ignore [missing-import]
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_limiter.errors import RateLimitExceeded
 
 # Load environment variables from .env
 load_dotenv()
@@ -33,6 +37,18 @@ app = Flask(__name__)
 # Add proper CORS so the Vercel frontend can talk to the Render backend.
 CORS(app, origins=["https://hinglify.vercel.app", "http://localhost:3000"])
 
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=[]
+)
+
+@app.errorhandler(RateLimitExceeded)
+def handle_rate_limit(e):
+    return jsonify({
+        "error": "rate_limited"
+    }), 429
+
 # ─── Constants ────────────────────────────────────────────────────────────────
 
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
@@ -44,6 +60,8 @@ def health():
     return 'ok', 200
 
 @app.route("/api/convert", methods=["POST"])
+@limiter.limit("2 per minute")
+@limiter.limit("5 per hour")
 def convert_file():
     try:
         if 'file' not in request.files:
