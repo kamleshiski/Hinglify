@@ -91,6 +91,12 @@ body {
   letter-spacing: -0.5px;
 }
 
+.brand-logo {
+  height: 32px;
+  width: auto;
+  border-radius: 8px;
+}
+
 .nav-cta {
   font-family: var(--font-body);
   font-size: 14px;
