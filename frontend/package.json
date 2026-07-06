@@ -1,4 +1,7 @@
 {
+  "name": "hinglify-frontend",
+  "version": "1.0.0",
+  "description": "Hindi to Hinglish subtitle converter frontend",
   "dependencies": {
     "@vercel/analytics": "^2.0.1"
   }
